@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+if [ $# -lt 2 ]; then
+	echo "Too Few Arguments!"
+	exit
+fi
+(sed '/^\(Message-ID\|Subject\|Date\|From\):/!d;s/^Message-ID: <\([^>]*\)>.*/"id":"\1"/;s/^Subject: \(.*\)/"subject":"\1"/;s/^Date: \(.*\)/"date":"\1"/;s/^From: \(.*\)/"email":"\1"/' $1; awk 'BEGIN{p=0}/Content-Type:/{p=1}{ if (p == 1) print }' $1 | paste -sd '\0' | sed 's/\(.*\)/"content:","\1"/') | paste -sd ',' | sed 's/^/{/;s/$/}/' > $2
+python insertDB.py $2
+rm $2 
